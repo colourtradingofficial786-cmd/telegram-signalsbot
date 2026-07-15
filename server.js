@@ -50,12 +50,39 @@ function generateTGHistoryTable() {
   return tableLines.join("\n") + "\n";
 }
 
-// ویب سائٹ سے لائیو ڈیٹا لانے کا فنکشن
+// ویب سائٹ سے لائیو ڈیٹا لانے کا فنکشن (بہتر سیکیورٹی بائی پاس کے ساتھ)
 async function fetchMarketData() {
   try {
     const url = `https://draw.ar-lottery01.com/WinGo/WinGo_${activeServer}/GetHistoryIssuePage.json?pageNo=1&pageSize=30`;
-    const response = await fetch(url);
-    const data = await response.json();
+    
+    // یہ ہیڈرز ویب سائٹ کو دھوکہ دیں گے کہ یہ ایک اصلی موبائل براؤزر ہے
+    const response = await fetch(url, {
+      headers: {
+        "accept": "application/json, text/plain, */*",
+        "accept-language": "en-US,en;q=0.9",
+        "sec-ch-ua": "\"Not_A Brand\";v=\"8\", \"Chromium\";v=\"120\"",
+        "sec-ch-ua-mobile": "?1",
+        "sec-ch-ua-platform": "\"Android\"",
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-site",
+        "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+      },
+      referrer: "https://basantgame.club/",
+      referrerPolicy: "strict-origin-when-cross-origin",
+      method: "GET",
+      mode: "cors"
+    });
+
+    const textData = await response.text();
+    
+    // اگر ویب سائٹ نے اب بھی بلاک کر کے ایچ ٹی ایم ایل بھیجی تو یہاں پتہ چل جائے گا
+    if (textData.trim().startsWith("<")) {
+      console.log("ویب سائٹ نے اب بھی بلاک کیا ہوا ہے، ہم 10 سیکنڈ بعد دوبارہ کوشش کریں گے۔");
+      return;
+    }
+
+    const data = JSON.parse(textData);
     const list = data.data.list;
     const latest = list[0];
 
@@ -93,7 +120,7 @@ function runAntiLossEngine(currentPeriod, latestResult) {
   let shortPeriod = currentPrediction.period.slice(-3);
   let serverName = activeServer === '1M' ? "WINGO 1-MIN" : "WINGO 30S";
 
-  let signalPost = `👑 𝗔𝗦𝗜𝗙 𝗪𝗜𝗡𝗚𝗢 𝗘𝗫𝗣𝗘𝗥𝗧 👑\n` +
+  let signalPost = `👑 𝗔𝗦𝗜𝗙 👑\n` +
                    `🌟 **V I P  S I G N A L** 🌟\n` +
                    `━━━━━━━━━━━━━━━━━━\n\n` +
                    `🎰 **GAME:** ${serverName}\n\n` +
