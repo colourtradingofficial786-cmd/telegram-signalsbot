@@ -1,0 +1,26 @@
+name: Wingo 24/7 Signal Engine
+
+on:
+  schedule:
+    # یہ سسٹم کو روزانہ رات کو ایک بار ری فریش کرے گا تاکہ بوٹ پرفیکٹ چلتا رہے
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install Fetch Library
+      run: npm install node-fetch@2
+
+    - name: Start Bot Service
+      run: node server.js
